@@ -15,10 +15,10 @@ class RegisterUser(APIView):
         serializer=Registerserailizer(data=request.data)
 
         if serializer.is_valid():
-            user=serializer.save()
+            serializer.save()
             return Response({"message":"user registered successfully"},status=status.HTTP_201_CREATED)
         
-        return Response(serializer.errors,status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class LoginUser(APIView):
     permission_classes=[AllowAny]
@@ -31,6 +31,7 @@ class LoginUser(APIView):
         if user:
             login(request, user)  # Create session
             request.session['user_id'] = user.id  # Store user ID in session (optional)
+            request.session.set_expiry(30 * 60)
             return Response({"message":"user loging successfully"},status=status.HTTP_200_OK)
         else:
             return Response({"error":"Invalid credentials"},status=status.HTTP_401_UNAUTHORIZED)
